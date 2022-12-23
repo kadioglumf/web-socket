@@ -38,6 +38,7 @@ public class TokenManager {
         userDetails.setEmail("test-fatih@gmail.com");
         userDetails.setAuth(Arrays.asList("ROLE_ADMIN", "ROLE_MODERATOR"));
         userDetails.setId(1L);
+        userDetails.setRoles(Arrays.asList("ROLE_ADMIN", "ROLE_MODERATOR"));
         return userDetails;
     }
 
