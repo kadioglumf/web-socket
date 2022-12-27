@@ -21,10 +21,9 @@ public class UserDetails {
     private List<String> roles;
 
     public void setAuth(List<String> roles) {
-        List<GrantedAuthority> authorities = roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role))
+        this.authorities = roles.stream()
+                .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
-        this.authorities = authorities;
     }
 
 }

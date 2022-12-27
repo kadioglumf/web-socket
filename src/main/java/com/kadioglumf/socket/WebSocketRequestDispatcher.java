@@ -112,7 +112,7 @@ public class WebSocketRequestDispatcher extends TextWebSocketHandler {
     }
   }
 
-  @Scheduled(fixedRateString = "60000")
+/*  @Scheduled(fixedRateString = "60000")
   public void checkTokenOfAllSessions() {
     for (var session : allSessions.entrySet()) {
       try {
@@ -125,5 +125,5 @@ public class WebSocketRequestDispatcher extends TextWebSocketHandler {
         log.error("");
       }
     }
-  }
+  }*/
 }

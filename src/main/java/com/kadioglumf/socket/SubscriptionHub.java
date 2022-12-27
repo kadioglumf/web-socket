@@ -1,6 +1,5 @@
 package com.kadioglumf.socket;
 
-import com.kadioglumf.socket.handler.ChannelHandlerInvoker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -25,18 +24,12 @@ public final class SubscriptionHub {
   public static void subscribe(RealTimeSession session, String channel) {
     Assert.hasText(channel, "Parameter `channel` must not be null");
 
-    if (!ChannelHandlerInvoker.isRolesAllowed(session.getUserDetails().getRoles())) {
-      session.error("You are not allowed to subscribe this channel!");
-    }
-    else {
-      Set<RealTimeSession> subscribers = subscriptions.computeIfAbsent(channel, k -> new HashSet<>());
-      subscribers.add(session);
+    Set<RealTimeSession> subscribers = subscriptions.computeIfAbsent(channel, k -> new HashSet<>());
+    subscribers.add(session);
 
-
-      // Add the channel to client's subscribed list
-      Set<String> channels = subscribedChannels.computeIfAbsent(session.id(), k -> new HashSet<>());
-      channels.add(channel);
-    }
+    // Add the channel to client's subscribed list
+    Set<String> channels = subscribedChannels.computeIfAbsent(session.id(), k -> new HashSet<>());
+    channels.add(channel);
   }
 
   public static void unsubscribe(RealTimeSession session, String channel) {
@@ -71,10 +64,7 @@ public final class SubscriptionHub {
     subscribedChannels.remove(session.id());
   }
 
-  /**
-   *
-   * @param request
-   */
+
   public static void send(WsSendMessageRequest request) {
     Assert.hasText(request.getChannel(), "Parameter `channel` must not be empty");
     Assert.notNull(request.getPayload(), "Parameter `update` must not be null");
