@@ -10,7 +10,7 @@ public class ConvertUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ConvertUtils.class);
 
-    public static <T> T ToObject(String jsonDta, Class<T> clazz) {
+    public static <T> T toObject(String jsonDta, Class<T> clazz) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -22,7 +22,7 @@ public class ConvertUtils {
         return null;
     }
 
-    public static String ToJsonData(Object value) {
+    public static String toJsonData(Object value) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

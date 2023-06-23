@@ -2,10 +2,7 @@ package com.kadioglumf.socket.handler;
 
 import com.kadioglumf.exception.ErrorType;
 import com.kadioglumf.exception.WebSocketException;
-import com.kadioglumf.socket.ActionType;
-import com.kadioglumf.socket.IncomingMessage;
-import com.kadioglumf.socket.RealTimeSession;
-import com.kadioglumf.socket.WsSendMessageRequest;
+import com.kadioglumf.socket.*;
 import com.kadioglumf.socket.annotations.Action;
 import com.kadioglumf.socket.annotations.ChannelHandler;
 import org.slf4j.Logger;
@@ -26,9 +23,11 @@ public class ChannelHandlerInvoker {
 
   private static final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-  private final String handlerAnnotationValue;
-  private final List<String> allowedRoles;
-  private final Object handler;
+
+  private String value;
+  private List<String> allowedRoles;
+
+  private Object handler;
   // Key is the action, value is the method to handle that action
   private final Map<ActionType, Method> actionMethods = new HashMap<>();
 
@@ -51,7 +50,7 @@ public class ChannelHandlerInvoker {
       log.debug("Mapped action `{}` in channel handler `{}#{}`", action, handlerClass.getName(), method);
     }
 
-    this.handlerAnnotationValue = handlerAnnotation.value();
+    this.value = handlerAnnotation.value();
     this.allowedRoles = Arrays.asList(handlerAnnotation.allowedRoles());
     this.handler = handler;
   }
@@ -76,7 +75,7 @@ public class ChannelHandlerInvoker {
 
   public void handle(IncomingMessage incomingMessage, RealTimeSession session) {
     try {
-      Assert.isTrue(antPathMatcher.match(handlerAnnotationValue, incomingMessage.getChannel()), "Channel of the handler must match");
+      Assert.isTrue(antPathMatcher.match(value, incomingMessage.getChannel()), "Channel of the handler must match");
 
       if (!isRolesAllowed(session.getUserDetails().getRoles())) {
         throw new WebSocketException(ErrorType.WEB_SOCKET_ERROR, "You are not allowed to subscribe this channel!");
@@ -99,7 +98,7 @@ public class ChannelHandlerInvoker {
         }
         else if (parameterType.isAssignableFrom(WsSendMessageRequest.class)) {
           WsSendMessageRequest sendMessageRequest = new WsSendMessageRequest();
-          sendMessageRequest.setEvent(incomingMessage.getEvent());
+          sendMessageRequest.setInfoType(incomingMessage.getInfoType());
           sendMessageRequest.setCategory(incomingMessage.getCategory());
           sendMessageRequest.setPayload(incomingMessage.getPayload());
           sendMessageRequest.setChannel(incomingMessage.getChannel());
@@ -109,15 +108,15 @@ public class ChannelHandlerInvoker {
       }
 
       actionMethod.invoke(handler, args);
-    } catch (WebSocketException e) {
+    }  catch (WebSocketException e) {
       String error = e.getErrorResponse().getErrorMessage();
       log.error(error, e);
-      session.error(error);
+      session.fail(WsFailureType.UNKNOWN_FAILURE.getValue());
     } catch (Exception e) {
       String error = "Failed to invoker action method `" + incomingMessage.getAction() +
               "` at channel `" + incomingMessage.getChannel() + "` ";
       log.error(error, e);
-      session.error(error);
+      session.fail(WsFailureType.UNKNOWN_FAILURE.getValue());
     }
   }
 }

@@ -2,21 +2,20 @@ package com.kadioglumf.socket;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.kadioglumf.exception.ErrorType;
-import com.kadioglumf.exception.WebSocketException;
-import com.kadioglumf.model.UserDetails;
+import com.kadioglumf.model.UserDetailsImpl;
 import com.kadioglumf.security.TokenManager;
-import com.kadioglumf.utils.ConvertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.util.CollectionUtils;
+import org.springframework.lang.Nullable;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 /**
  * A wrapper over {@link WebSocketSession} to add convenient methods
@@ -25,6 +24,7 @@ public class RealTimeSession {
 
   private static final Logger log = LoggerFactory.getLogger(RealTimeSession.class);
   private static final String LAST_VALID_TOKEN = "LAST_VALID_TOKEN";
+  private static final String USER_DETAILS = "USER_DETAILS";
 
   private final WebSocketSession session;
 
@@ -40,17 +40,18 @@ public class RealTimeSession {
     return session;
   }
 
-  public UserDetails getUserDetails() {
-    UsernamePasswordAuthenticationToken authenticationToken = (UsernamePasswordAuthenticationToken) this.session.getPrincipal();
-    return authenticationToken == null ? null : (UserDetails) authenticationToken.getPrincipal();
+  public UserDetailsImpl getUserDetails() {
+    return getAttribute(USER_DETAILS);
   }
 
-  public String getTokenFromHeader() {
-    List<String> headerAuths = session.getHandshakeHeaders().get(TokenManager.AUTHORIZATION_HEADER);
-    if (CollectionUtils.isEmpty(headerAuths)) {
-      throw new WebSocketException(ErrorType.WEB_SOCKET_ERROR); //TODO
-    }
-    return headerAuths.get(0);
+  public void setUserDetails(UserDetailsImpl userDetails) {
+    addAttribute(USER_DETAILS, userDetails);
+  }
+
+  public String getTokenFromUrl() {
+    URI uri = session.getUri();
+    UriComponents uriComponents = UriComponentsBuilder.fromUri(uri).build();
+    return uriComponents.getQueryParams().getFirst(TokenManager.AUTHORIZATION_HEADER);
   }
 
   public String getLastValidToken() {
@@ -87,24 +88,31 @@ public class RealTimeSession {
     return false;
   }
 
-  public void error(String error) {
-    sendMessage(WebSocketMessages.error(error));
+  public void info(WsSendMessageRequest request) {
+    sendMessage(WebSocketMessages.info(request));
   }
 
   public void fail(String failure) {
     sendMessage(WebSocketMessages.failure(failure));
   }
 
-  public void reply(String reply) {
-    sendMessage(WebSocketMessages.reply(reply));
+  public void reply(String reply, @Nullable Set<String> subscribedChannels) {
+    sendMessage(WebSocketMessages.reply(reply, subscribedChannels));
   }
 
-  private void sendMessage(Object message) {
+  private void sendMessage(TextMessage message) {
     try {
-      String textMessage = ConvertUtils.ToJsonData(message);
-      session.sendMessage(new TextMessage(textMessage));
+      session.sendMessage(message);
     } catch (IOException e) {
       log.error("Failed to send message through web socket session", e);
     }
   }
+
+/*  public String getTokenFromHeader() {
+    List<String> headerAuths = session.getHandshakeHeaders().get(TokenManager.AUTHORIZATION_HEADER);
+    if (CollectionUtils.isEmpty(headerAuths)) {
+      throw new WebSocketException(ErrorType.WEB_SOCKET_ERROR); //TODO
+    }
+    return headerAuths.get(0);
+  }*/
 }

@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Arrays;
 
-public enum WsCategoryType {
+public enum WsInfoType {
 
-    @JsonProperty("test_category_type") TEST_CATEGORY_TYPE("test_category_type"),
-    ;
+    @JsonProperty("test_info_type") TEST_INFO_TYPE("test_info_type");
+
 
     private final String value;
 
-    WsCategoryType(String value) {
+    WsInfoType(String value) {
         this.value = value;
     }
 
@@ -19,8 +19,8 @@ public enum WsCategoryType {
         return this.value;
     }
 
-    public static WsCategoryType toAttribute(String value) {
-        return Arrays.stream(WsCategoryType.values())
+    public static WsInfoType toAttribute(String value) {
+        return Arrays.stream(WsInfoType.values())
                 .filter(op -> op.toString().equals(value))
                 .findFirst()
                 .orElseThrow();

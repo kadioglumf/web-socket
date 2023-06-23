@@ -1,8 +1,11 @@
 package com.kadioglumf.socket;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kadioglumf.socket.annotations.Action;
 import com.kadioglumf.socket.annotations.ChannelHandler;
+
+import javax.persistence.Convert;
 
 /**
  * Incoming message received via WebSocket. The raw message is a JSON
@@ -15,6 +18,7 @@ import com.kadioglumf.socket.annotations.ChannelHandler;
  * }
  * </pre>
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class IncomingMessage {
 
   /**
@@ -26,6 +30,7 @@ public class IncomingMessage {
   /**
    * Specify the action to take. {@link WebSocketRequestDispatcher} will find
    * the corresponding action method by checking the {@link Action} settings
+   * action must be in {@link ActionType}
    */
   private String action;
 
@@ -37,11 +42,13 @@ public class IncomingMessage {
   /**
    * for what purpose the message was sent
    */
-  private WsEventType event;
+  @Convert(converter = WsInfoTypeConverter.class)
+  private WsInfoType infoType;
 
   /**
    * The category type of message
    */
+  @Convert(converter = WsCategoryTypeConverter.class)
   private WsCategoryType category;
 
 
@@ -69,12 +76,12 @@ public class IncomingMessage {
     this.payload = payload;
   }
 
-  public WsEventType getEvent() {
-    return event;
+  public WsInfoType getInfoType() {
+    return infoType;
   }
 
-  public void setEvent(WsEventType event) {
-    this.event = event;
+  public void setInfoType(WsInfoType infoType) {
+    this.infoType = infoType;
   }
 
   public WsCategoryType getCategory() {

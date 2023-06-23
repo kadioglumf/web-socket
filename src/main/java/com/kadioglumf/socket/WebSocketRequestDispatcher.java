@@ -2,7 +2,7 @@ package com.kadioglumf.socket;
 
 import com.kadioglumf.exception.ErrorType;
 import com.kadioglumf.exception.WebSocketException;
-import com.kadioglumf.model.UserDetails;
+import com.kadioglumf.model.UserDetailsImpl;
 import com.kadioglumf.security.TokenManager;
 import com.kadioglumf.socket.handler.ChannelHandlerInvoker;
 import com.kadioglumf.socket.handler.ChannelHandlerResolver;
@@ -41,19 +41,22 @@ public class WebSocketRequestDispatcher extends TextWebSocketHandler {
     RealTimeSession session = new RealTimeSession(webSocketSession);
 
     try {
-      if (session.getUserDetails() == null) {
+      UserDetailsImpl userDetails = tokenManager.getUserDetailsByJwt(session.getTokenFromUrl());
+      if (userDetails == null) {
         throw new WebSocketException(ErrorType.WEB_SOCKET_ERROR, "Authentication failed!");
       }
-      session.setLastValidToken(session.getTokenFromHeader());
-      session.reply("authenticated");
+
+      session.setUserDetails(userDetails);
+      session.setLastValidToken(session.getTokenFromUrl());
+      session.reply(WsReplyType.AUTHENTICATION_SUCCESS.getValue(), null);
       allSessions.put(session.id(), session);
     } catch (WebSocketException exception) {
       log.debug("Authentication failed");
-      session.fail(exception.getErrorResponse().getErrorMessage());
+      session.fail(WsFailureType.AUTHENTICATION_FAILURE.getValue());
       webSocketSession.close(CloseStatus.SERVER_ERROR);
     } catch (Exception exception) {
       log.debug("Error afterConnectionEstablished method: {}", exception.getMessage());
-      session.fail("authentication failed" + exception.getMessage());
+      session.fail(WsFailureType.AUTHENTICATION_FAILURE.getValue());
       webSocketSession.close(CloseStatus.SERVER_ERROR);
     }
   }
@@ -63,26 +66,28 @@ public class WebSocketRequestDispatcher extends TextWebSocketHandler {
     RealTimeSession session = allSessions.get(webSocketSession.getId());
     log.debug("RealTimeSession[{}] Received message `{}`", session.id(), message.getPayload());
 
-    IncomingMessage incomingMessage = ConvertUtils.ToObject(message.getPayload(), IncomingMessage.class);
+    IncomingMessage incomingMessage = ConvertUtils.toObject(message.getPayload(), IncomingMessage.class);
     if (incomingMessage == null) {
-      session.error("Illegal format of incoming message: " + message.getPayload());
+      session.fail(WsFailureType.ILLEGAL_MESSAGE_FORMAT_FAILURE.getValue());
       return;
     }
 
-    if (WsEventType.REFRESH_CONNECTION.equals(incomingMessage.getEvent())) {
+
+    if (ActionType.REFRESH_CONNECTION.getValue().equals(incomingMessage.getAction())) {
 
       try {
-        UserDetails userDetails = tokenManager.getUserDetailsByJwt(incomingMessage.getPayload().toString());
+        UserDetailsImpl userDetails = tokenManager.getUserDetailsByJwt(incomingMessage.getPayload().toString());
         if (userDetails == null) {
           throw new WebSocketException(ErrorType.WEB_SOCKET_ERROR, "Authentication failed!");
         }
         session.setLastValidToken(incomingMessage.getPayload().toString());
+        session.reply(WsReplyType.AUTHENTICATION_REFRESH_SUCCESS.getValue(), null);
       } catch (WebSocketException exception) {
-        session.fail(exception.getErrorResponse().getErrorMessage());
+        session.fail(WsFailureType.AUTHENTICATION_FAILURE.getValue());
         afterConnectionClosed(webSocketSession, CloseStatus.SERVER_ERROR);
       } catch (Exception exception) {
         log.debug("Error handleTextMessage method: {}", exception.getMessage());
-        session.fail("handleTextMessage failed" + exception.getMessage());
+        session.fail(WsFailureType.UNKNOWN_FAILURE.getValue());
         afterConnectionClosed(webSocketSession, CloseStatus.SERVER_ERROR);
       }
 
@@ -92,7 +97,7 @@ public class WebSocketRequestDispatcher extends TextWebSocketHandler {
       if (invoker == null) {
         String errorMessage = "No handler found for action `" + incomingMessage.getAction() +
                 "` at channel `" + incomingMessage.getChannel() + "`";
-        session.error(errorMessage);
+        session.fail(WsFailureType.ACTION_TYPE_FAILURE.getValue());
         log.error("RealTimeSession[{}] {}", session.id(), errorMessage);
         return;
       }
@@ -112,12 +117,12 @@ public class WebSocketRequestDispatcher extends TextWebSocketHandler {
     }
   }
 
-/*  @Scheduled(fixedRateString = "60000")
+  @Scheduled(fixedRateString = "60000")
   public void checkTokenOfAllSessions() {
     for (var session : allSessions.entrySet()) {
       try {
         if (session.getValue().isSubscriberTokenExpired()) {
-          session.getValue().fail("Token is expired!");
+          session.getValue().fail(WsFailureType.AUTH_TOKEN_EXPIRED_FAILURE.getValue());
           afterConnectionClosed(session.getValue().wrapped(), CloseStatus.SERVER_ERROR);
         }
       }
@@ -125,5 +130,5 @@ public class WebSocketRequestDispatcher extends TextWebSocketHandler {
         log.error("");
       }
     }
-  }*/
+  }
 }

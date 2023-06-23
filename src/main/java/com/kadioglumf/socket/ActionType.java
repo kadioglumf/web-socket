@@ -3,7 +3,8 @@ package com.kadioglumf.socket;
 public enum ActionType {
     SUBSCRIBE("subscribe"),
     UNSUBSCRIBE("unsubscribe"),
-    SEND_MESSAGE("send");
+    SEND_MESSAGE("send"),
+    REFRESH_CONNECTION("refresh_connection");
 
     private final String value;
 

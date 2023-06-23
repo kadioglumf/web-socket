@@ -21,6 +21,10 @@ public final class SubscriptionHub {
   // The key is the session id, value is a set of subscribed channels
   private static final Map<String, Set<String>> subscribedChannels = new HashMap<>();
 
+  /**
+   * Method that performs the process of subscribing to the channel.
+   *
+   */
   public static void subscribe(RealTimeSession session, String channel) {
     Assert.hasText(channel, "Parameter `channel` must not be null");
 
@@ -30,8 +34,13 @@ public final class SubscriptionHub {
     // Add the channel to client's subscribed list
     Set<String> channels = subscribedChannels.computeIfAbsent(session.id(), k -> new HashSet<>());
     channels.add(channel);
+    session.reply(WsReplyType.SUBSCRIPTION_REPLY.getValue(), channels);
   }
 
+  /**
+   * Method that performs the process of unsubscribing from the channel.
+   *
+   */
   public static void unsubscribe(RealTimeSession session, String channel) {
     Assert.hasText(channel, "Parameter `channel` must not be empty");
     Assert.notNull(session, "Parameter `session` must not be null");
@@ -47,14 +56,23 @@ public final class SubscriptionHub {
     if (channels != null) {
       channels.remove(channel);
     }
+    if (!session.wrapped().isOpen()) {
+      log.error("{} session closed. email: {} should reconnect.", session.id(), session.getUserDetails().getEmail());
+      return;
+    }
+    session.reply(WsReplyType.SUBSCRIPTION_REPLY.getValue(), channels);
   }
 
+  /**
+   * Method that performs the process of unsubscribing from the all channels.
+   *
+   */
   public static void unsubscribeAll(RealTimeSession session) {
-    Set<String> channels = subscribedChannels.get(session.id());
-    if (channels == null) {
+    if (subscribedChannels.get(session.id()) == null) {
       log.debug("RealTimeSession[{}] No channels to unsubscribe.", session.id());
       return;
     }
+    Set<String> channels = new HashSet<>(subscribedChannels.get(session.id()));
 
     for (String channel: channels) {
       unsubscribe(session, channel);
@@ -64,7 +82,12 @@ public final class SubscriptionHub {
     subscribedChannels.remove(session.id());
   }
 
-
+  /**
+   * This is the method used to broadcast the message.
+   * This method can be used when the backend will publish a message.
+   * Because the backend does not have to subscribe.
+   *
+   */
   public static void send(WsSendMessageRequest request) {
     Assert.hasText(request.getChannel(), "Parameter `channel` must not be empty");
     Assert.notNull(request.getPayload(), "Parameter `update` must not be null");
@@ -76,16 +99,22 @@ public final class SubscriptionHub {
     }
 
     for (RealTimeSession subscriber: subscribers) {
-      sendTo(subscriber.wrapped(), request);
+      sendTo(subscriber, request);
     }
   }
 
+  /**
+   * This is the method used to broadcast the message.
+   * This method can be used when the frontend will publish a message.
+   * Because the frontend has to subscribe.
+   *
+   */
   public static void send(RealTimeSession session, WsSendMessageRequest request) {
     Assert.hasText(request.getChannel(), "Parameter `channel` must not be empty");
     Assert.notNull(request.getPayload(), "Parameter `update` must not be null");
 
     if (!isSessionSubscribed(session, request.getChannel())) {
-      session.error("You are not subscribed this channel!");
+      session.fail(WsFailureType.SEND_FAILURE.getValue());
     }
     else {
       Set<RealTimeSession> subscribers = subscriptions.get(request.getChannel());
@@ -95,27 +124,53 @@ public final class SubscriptionHub {
       }
 
       for (RealTimeSession subscriber: subscribers) {
-        sendTo(subscriber.wrapped(), request);
+        sendTo(subscriber, request);
       }
     }
   }
 
-  private static void sendTo(WebSocketSession subscriber, WsSendMessageRequest request) {
-    try {
-      subscriber.sendMessage(WebSocketMessages.channelMessage(request));
+  /**
+   * It is the method in which the @param subscriber in the request broadcasts the message.
+   *
+   */
+  private static void sendTo(RealTimeSession subscriber, WsSendMessageRequest request) {
+
+    if (!subscriber.wrapped().isOpen()) {
+      unsubscribeAll(subscriber);
+      return;
+    }
+    if (WsSendingType.ROLE_BASED.equals(request.getSendingType())) {
+
+      boolean isRoleFound = request.getRole() != null
+              && subscriber.getUserDetails().getRoles().contains(request.getRole().name());
+
+      if (isRoleFound) {
+        subscriber.info(request);
+        log.debug("RealTimeSession[{}] Send message `{}` to subscriber at channel `{}`",
+                subscriber.id(), request.getPayload(), request.getChannel());
+      }
+    }
+    else if (WsSendingType.SPECIFIED_USER.equals(request.getSendingType())) {
+
+      boolean isSpecifiedUserFound = request.getUserId() != null
+              && request.getUserId().equals(subscriber.getUserDetails().getId());
+
+      if (isSpecifiedUserFound) {
+        subscriber.info(request);
+        log.debug("RealTimeSession[{}] Send message `{}` to subscriber at channel `{}`",
+                subscriber.id(), request.getPayload(), request.getChannel());
+      }
+    }
+    else
+    {
+      subscriber.info(request);
       log.debug("RealTimeSession[{}] Send message `{}` to subscriber at channel `{}`",
-        subscriber.getId(), request.getPayload(), request.getChannel());
-    } catch (IOException e) {
-      log.error("Failed to send message to subscriber `" + subscriber.getId() +
-        "` of channel `" + request.getChannel() + "`. Message: " + request.getPayload(), e);
+              subscriber.id(), request.getPayload(), request.getChannel());
     }
   }
 
   private static boolean isSessionSubscribed(RealTimeSession session, String channel) {
     Set<RealTimeSession> subscribers = subscriptions.get(channel);
-    if (CollectionUtils.isEmpty(subscribers) || !subscribers.contains(session)) {
-      return false;
-    }
-    return true;
+    return !CollectionUtils.isEmpty(subscribers) && subscribers.contains(session);
   }
 }
