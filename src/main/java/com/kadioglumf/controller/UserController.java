@@ -3,7 +3,7 @@ package com.kadioglumf.controller;
 import com.kadioglumf.model.JwtResponse;
 import com.kadioglumf.model.LoginRequest;
 import com.kadioglumf.model.UserDetailsImpl;
-import com.kadioglumf.security.JwtUtils;
+import com.kadioglumf.security.TokenManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtUtils jwtUtils;
+    private final TokenManager tokenManager;
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
@@ -43,7 +42,7 @@ public class UserController {
                 .collect(Collectors.toList());
 
 
-        String jwt = jwtUtils.generateJwtToken(authentication);
+        String jwt = tokenManager.generateJwtToken(userDetails);
 
         JwtResponse jwtResponse = new JwtResponse();
         jwtResponse.setToken(jwt);

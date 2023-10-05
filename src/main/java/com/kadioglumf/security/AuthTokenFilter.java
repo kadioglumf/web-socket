@@ -24,15 +24,15 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private UserDetailsServiceImpl userDetailsService;
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private TokenManager tokenManager;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
             String jwt = parseJwt(request);
-            if (StringUtils.hasText(jwt) && jwtUtils.validateJwtToken(jwt)) {
-                String email = jwtUtils.getEmailFromJwtToken(jwt);
+            if (StringUtils.hasText(jwt) && tokenManager.validateJwtToken(jwt)) {
+                String email = tokenManager.getEmailFromJwtToken(jwt);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
