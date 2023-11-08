@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {AuthenticationService} from '../../../service/auth.service';
-import {Login} from '../../../modal/login';
+import {AuthenticationService} from '../../service/auth.service';
+import {Login} from '../../modal/login';
 
 @Component({
   selector: 'app-login',
@@ -15,6 +15,7 @@ export class LoginComponent implements OnInit {
     email: new FormControl(this.savedUserEmail, {nonNullable: true, validators: [Validators.required, Validators.email]}),
     password: new FormControl('', {nonNullable: true, validators: Validators.required})
   });
+
 
   constructor(
     public authenticationService: AuthenticationService
