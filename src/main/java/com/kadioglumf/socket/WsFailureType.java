@@ -7,7 +7,8 @@ public enum WsFailureType {
     ACTION_TYPE_FAILURE("action_type_failure", "No handler found for action failure!"),
     AUTH_TOKEN_EXPIRED_FAILURE("auth_token_expired_failure", "Token expired failure!"),
     MISSING_FIELD_FAILURE("missing_field_failure", "Missing filed failure!"),
-    UNKNOWN_FAILURE("unknown_failure", "Unknown failure!");
+    UNKNOWN_FAILURE("unknown_failure", "Unknown failure!"),
+    AUTHORIZATION_FAILURE("authorization_failure", "You are not allowed to this channel!");
 
     private final String value;
     private final String description;

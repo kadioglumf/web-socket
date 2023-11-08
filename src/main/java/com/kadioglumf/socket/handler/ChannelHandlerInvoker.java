@@ -111,7 +111,7 @@ public class ChannelHandlerInvoker {
     }  catch (WebSocketException e) {
       String error = e.getErrorResponse().getErrorMessage();
       log.error(error, e);
-      session.fail(WsFailureType.UNKNOWN_FAILURE.getValue());
+      session.fail(error);
     } catch (Exception e) {
       String error = "Failed to invoker action method `" + incomingMessage.getAction() +
               "` at channel `" + incomingMessage.getChannel() + "` ";
