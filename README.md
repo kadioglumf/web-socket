@@ -48,83 +48,67 @@
 - connect to 
     +  `localhost:8080/api/web-socket?Authorization=(YOUR_TOKEN)`
 
-- send request to subscribe a user channel
-  + `{
-  "channel":"test-user-channel",
-  "action":"subscribe"
-  }`
-
-- send message to subscribed user channel
-    + `{ "payload": "This is test message", "action": "send","infoType": "test_info_type", "category":"test_category_type", "channel":"test-user-channel" }`
-
-- send request to unsubscribe from the user channel
-  + `{
-    "channel":"test-user-channel",
-    "action":"unsubscribe"
-    }`
-
-- send request to refresh connection the user channel
-  + `{
-    "action":"refresh_connection",
-    "payload": "token"
-    }
-    `
 
 - send request to subscribe a admin channel
-    + `{
-    "channel":"test-admin-channel",
-    "action":"subscribe"
-    }`
+    + ```json 
+      {
+        "channel":"test-admin-channel",
+        "action":"subscribe"
+      }
+      ```
 
-- send message to subscribed admin channel
-    + `{ "payload": "This is test message", "action": "send","infoType": "test_info_type", "category":"test_category_type", "channel":"test-admin-channel" }`
 
 - send request to unsubscribe from the admin channel
-  + `{
-    "channel":"test-admin-channel",
-    "action":"unsubscribe"
-    }`
+  + ```json 
+    {
+      "channel":"test-admin-channel",
+      "action":"unsubscribe"
+    }
+    ```
 
 - send request to refresh connection the admin channel
-  + `{
-    "action":"refresh_connection",
-    "payload": "token"
+  + ```json 
+    {
+      "action": "refresh_connection",
+      "payload": "token"
     }
-    `
+    ```
 
-## Send Message to test-user-channel (to everybody)
+## Send message to subscribed channel (to everybody)
 
--   `curl --location 'localhost:8080/api/web-socket/publish' \
-    --header 'Content-Type: application/json' \
-    --data '{
-    "payload": "Test Message",
+``` json 
+    { 
+      "payload": "This is test message admin",
+      "action": "send",
+      "infoType": "test_info_type",
+      "category": "test_category_type",
+      "channel": "test-admin-channel",
+      "sendingType": "ALL" //optional
+    }
+```
+
+## Send Message to subscribed channel (specified user)
+
+```json 
+    {
+      "payload": "Test Message",
+      "infoType": "test_info_type",
+      "category":"test_category_type",
+      "channel":"test-user-channel",
+      "sendingType": "SPECIFIED_USER",
+      "userId": 1
+    }
+```
+
+## Send Message to subscribed channel (role based)
+
+```json 
+  {
+    "payload": "Test Message2",
     "infoType": "test_info_type",
     "category":"test_category_type",
-    "channel":"test-user-channel"
-    }'`
-
-## Send Message to test-user-channel (specified user)
-
-- `curl --location 'localhost:8080/api/web-socket/publish' \
-  --header 'Content-Type: application/json' \
-  --data '{
-  "payload": "Test Message",
-  "infoType": "test_info_type",
-  "category":"test_category_type",
-  "channel":"test-user-channel",
-  "sendingType": "SPECIFIED_USER",
-  "userId": 2
-  }'`
-
-## Send Message to test-user-channel (role based)
-
-- `curl --location 'localhost:8080/api/web-socket/publish' \
-  --header 'Content-Type: application/json' \
-  --data '{
-  "payload": "Test Message2",
-  "infoType": "test_info_type",
-  "category":"test_category_type",
-  "channel":"test-user-channel",
-  "sendingType": "ROLE_BASED",
-  "role":"ROLE_USER"
-  }'`
+    "channel":"test-user-channel",
+    "sendingType": "ROLE_BASED",
+    "role":"ROLE_USER"
+  }
+```

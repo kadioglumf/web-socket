@@ -25,7 +25,7 @@ export class AuthenticationService {
       password: request.password
     }).subscribe(
       response => {
-        if (response.roles.length > 1 || (response.roles.length === 1 && !response.roles.includes(Role.USER))) {
+        if (response.roles.length > 1 || (response.roles.length === 1)) {
           this.userRole = response.roles;
           this.setCurrentUser(response.refreshToken, response.token, response.email, response.id);
           this.isUserLoggedIn = this.getCurrentUser();

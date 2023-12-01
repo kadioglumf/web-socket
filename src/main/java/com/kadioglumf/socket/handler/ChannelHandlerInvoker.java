@@ -102,6 +102,9 @@ public class ChannelHandlerInvoker {
           sendMessageRequest.setCategory(incomingMessage.getCategory());
           sendMessageRequest.setPayload(incomingMessage.getPayload());
           sendMessageRequest.setChannel(incomingMessage.getChannel());
+          sendMessageRequest.setSendingType(incomingMessage.getSendingType());
+          sendMessageRequest.setRole(incomingMessage.getRole());
+          sendMessageRequest.setUserId(incomingMessage.getUserId());
 
           args[i] = sendMessageRequest;
         }
