@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class WsPublishController {
 
     private final WebSocketService webSocketService;
-    @PostMapping
+/*    @PostMapping
     public void publish(@RequestBody WsSendMessageRequest request) {
         webSocketService.sendNotification(request);
-    }
+    }*/
 }

@@ -1,0 +1,85 @@
+
+
+
+::ng-deep {
+.mat-expansion-panel-header {
+  padding: 0 16px !important;
+  align-items: center;
+
+#{&}-title {
+  align-items: center;
+}
+
+mat-icon {
+  margin-right: 1rem
+}
+}
+
+.mat-expansion-panel-body {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.mat-expanded {
+  background-color: #efefef;
+}
+}
+
+
+.main {
+  margin: 1.5rem;
+}
+
+.connection {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+  gap:4px;
+
+&__button {
+   width: 8px;
+   height: 8px;
+   border-radius: 50%;
+   border: 2px solid;
+   position: relative;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   padding: 2px;
+   font-size: 16px;
+   transition: .3s all;
+   margin-top: 4px;
+
+&:not(.active){
+   border-color: #ff3724;
+   color: #ff3724;
+   background: #ff3724;
+ }
+&.active {
+   border-color: greenyellow;
+   color: greenyellow;
+   background: greenyellow;
+ }
+}
+&__text {
+   font-size: 16px;
+ }
+&__timer {
+   margin-right: 1rem;
+   font-size: 16px;
+ }
+&__icon {
+   margin-top: 4px;
+   font-size: 16px;
+   width: 80px;
+   height: 30px;
+&:hover {
+   cursor: pointer;
+   transition: .3s all;
+   transform: rotate(360deg);
+ }
+}
+
+}
+
+

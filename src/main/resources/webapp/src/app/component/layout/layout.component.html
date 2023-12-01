@@ -1,0 +1,37 @@
+<div class="connection">
+  <span class="connection__text">{{ ((this.liveNotification.healthCheck | async) ? 'Connected' : 'notConnected')}}&nbsp;</span>
+  <button class="connection__button" [class.active]="(this.liveNotification.healthCheck.getValue())"></button>
+  <ng-container *ngIf="!(this.liveNotification.healthCheck.getValue())">
+    <mat-icon class="connection__icon" (click)="liveNotification.startLiveNotification()"><button>refresh</button></mat-icon>
+    <span class="connection__timer">({{this.liveNotification.refreshTimeSec}}s)</span>
+  </ng-container>
+</div>
+
+
+
+
+
+
+<mat-card class="max-w-[768px]">
+  <h1 matCardTitle>{{'Channels'}}</h1>
+  <div class="flex flex-col gap-4">
+    <mat-slide-toggle [checked]="checkChannel(channel.TEST_ADMIN_CHANNEL)"
+                      (change)="toggleChannel(channel.TEST_ADMIN_CHANNEL)">
+      <span class="text-base">{{'TEST_ADMIN_CHANNEL'}}</span>
+    </mat-slide-toggle>
+
+    <mat-slide-toggle [checked]="checkChannel(channel.TEST_USER_CHANNEL)"
+                      (change)="toggleChannel(channel.TEST_USER_CHANNEL)">
+      <span class="text-base">{{'TEST_USER_CHANNEL'}}</span>
+    </mat-slide-toggle>
+  </div>
+</mat-card>
+
+
+
+
+<div>
+  <ul>
+    <li *ngFor="let str of this.liveNotification.data">{{ str }}</li>
+  </ul>
+</div>

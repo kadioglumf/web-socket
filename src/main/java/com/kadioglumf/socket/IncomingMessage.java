@@ -51,6 +51,10 @@ public class IncomingMessage {
   @Convert(converter = WsCategoryTypeConverter.class)
   private WsCategoryType category;
 
+  private WsSendingType sendingType;
+  private RoleType role;
+  private Long userId;
+
 
   public String getChannel() {
     return channel;
@@ -90,5 +94,29 @@ public class IncomingMessage {
 
   public void setCategory(WsCategoryType category) {
     this.category = category;
+  }
+
+  public WsSendingType getSendingType() {
+    return sendingType;
+  }
+
+  public void setSendingType(WsSendingType sendingType) {
+    this.sendingType = sendingType;
+  }
+
+  public RoleType getRole() {
+    return role;
+  }
+
+  public void setRole(RoleType role) {
+    this.role = role;
+  }
+
+  public Long getUserId() {
+    return userId;
+  }
+
+  public void setUserId(Long userId) {
+    this.userId = userId;
   }
 }

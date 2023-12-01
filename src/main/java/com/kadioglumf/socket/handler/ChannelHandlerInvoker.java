@@ -102,6 +102,9 @@ public class ChannelHandlerInvoker {
           sendMessageRequest.setCategory(incomingMessage.getCategory());
           sendMessageRequest.setPayload(incomingMessage.getPayload());
           sendMessageRequest.setChannel(incomingMessage.getChannel());
+          sendMessageRequest.setSendingType(incomingMessage.getSendingType());
+          sendMessageRequest.setRole(incomingMessage.getRole());
+          sendMessageRequest.setUserId(incomingMessage.getUserId());
 
           args[i] = sendMessageRequest;
         }
@@ -111,7 +114,7 @@ public class ChannelHandlerInvoker {
     }  catch (WebSocketException e) {
       String error = e.getErrorResponse().getErrorMessage();
       log.error(error, e);
-      session.fail(WsFailureType.UNKNOWN_FAILURE.getValue());
+      session.fail(error);
     } catch (Exception e) {
       String error = "Failed to invoker action method `" + incomingMessage.getAction() +
               "` at channel `" + incomingMessage.getChannel() + "` ";
