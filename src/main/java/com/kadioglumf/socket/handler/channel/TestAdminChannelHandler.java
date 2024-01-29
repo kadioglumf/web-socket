@@ -1,4 +1,4 @@
-package com.kadioglumf.socket.handler;
+package com.kadioglumf.socket.handler.channel;
 
 
 import com.kadioglumf.socket.annotations.ChannelHandler;

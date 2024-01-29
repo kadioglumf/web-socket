@@ -1,7 +1,7 @@
 package com.kadioglumf.socket.annotations;
 
 
-import com.kadioglumf.socket.ActionType;
+import com.kadioglumf.socket.model.enums.ActionType;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

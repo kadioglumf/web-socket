@@ -1,5 +1,6 @@
-package com.kadioglumf.socket;
+package com.kadioglumf.socket.model.enums;
 
+import com.kadioglumf.socket.converter.WsInfoTypeConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

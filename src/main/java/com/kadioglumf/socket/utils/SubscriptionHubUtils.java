@@ -1,20 +1,26 @@
-package com.kadioglumf.socket;
+package com.kadioglumf.socket.utils;
 
+import com.kadioglumf.socket.RealTimeSession;
+import com.kadioglumf.socket.model.enums.WsFailureType;
+import com.kadioglumf.socket.model.enums.WsReplyType;
+import com.kadioglumf.socket.model.enums.WsSendMessageRequest;
+import com.kadioglumf.socket.model.enums.WsSendingType;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public final class SubscriptionHub {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class SubscriptionHubUtils {
 
-  private static final Logger log = LoggerFactory.getLogger(SubscriptionHub.class);
+  private static final Logger log = LoggerFactory.getLogger(SubscriptionHubUtils.class);
   // Key is the channel, value is a set of web socket sessions that have subscribed to it
   private static final Map<String, Set<RealTimeSession>> subscriptions = new HashMap<>();
   // Keep the the channels that a client subscribed

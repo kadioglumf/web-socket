@@ -1,4 +1,4 @@
-package com.kadioglumf.socket;
+package com.kadioglumf.socket.model.enums;
 
 public enum WsSendingType {
     SPECIFIED_USER,

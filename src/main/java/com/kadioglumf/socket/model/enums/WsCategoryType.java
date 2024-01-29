@@ -1,4 +1,4 @@
-package com.kadioglumf.socket;
+package com.kadioglumf.socket.model.enums;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

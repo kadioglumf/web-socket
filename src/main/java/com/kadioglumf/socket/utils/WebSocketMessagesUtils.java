@@ -1,6 +1,9 @@
-package com.kadioglumf.socket;
+package com.kadioglumf.socket.utils;
 
+import com.kadioglumf.socket.model.enums.WsSendMessageRequest;
 import com.kadioglumf.utils.ConvertUtils;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 import org.springframework.web.socket.TextMessage;
 
@@ -8,9 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-class WebSocketMessages {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class WebSocketMessagesUtils {
 
-  static TextMessage reply(String replyType, @Nullable Set<String> subscribedChannels) {
+  public static TextMessage reply(String replyType, @Nullable Set<String> subscribedChannels) {
     Map<String, Object> messageObject = new HashMap<>();
     messageObject.put("type", "reply");
     messageObject.put("replyType", replyType);
@@ -20,7 +24,7 @@ class WebSocketMessages {
     return new TextMessage(ConvertUtils.toJsonData(messageObject));
   }
 
-  static TextMessage info(WsSendMessageRequest request) {
+  public static TextMessage info(WsSendMessageRequest request) {
     Map<String, Object> messageObject = new HashMap<>();
     messageObject.put("type", "info");
     messageObject.put("infoType", request.getInfoType());
@@ -30,14 +34,14 @@ class WebSocketMessages {
     return new TextMessage(ConvertUtils.toJsonData(messageObject));
   }
 
-  static TextMessage failure(String failure) {
+  public static TextMessage failure(String failure) {
     Map<String, String> messageObject = new HashMap<>();
     messageObject.put("type", "failure");
     messageObject.put("failureType", failure);
     return new TextMessage(ConvertUtils.toJsonData(messageObject));
   }
 
-  static TextMessage channelMessage(WsSendMessageRequest request) {
+  public static TextMessage channelMessage(WsSendMessageRequest request) {
     Map<String, Object> messageObject = new HashMap<>();
     messageObject.put("type", "info");
     messageObject.put("infoType", request.getInfoType());

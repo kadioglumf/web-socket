@@ -1,9 +1,13 @@
-package com.kadioglumf.socket;
+package com.kadioglumf.socket.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kadioglumf.socket.model.enums.*;
+import com.kadioglumf.socket.WebSocketRequestDispatcher;
 import com.kadioglumf.socket.annotations.Action;
 import com.kadioglumf.socket.annotations.ChannelHandler;
+import com.kadioglumf.socket.converter.WsCategoryTypeConverter;
+import com.kadioglumf.socket.converter.WsInfoTypeConverter;
 
 import javax.persistence.Convert;
 

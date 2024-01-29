@@ -1,7 +1,11 @@
-package com.kadioglumf.socket.handler;
+package com.kadioglumf.socket.handler.channel;
 
+import com.kadioglumf.socket.model.enums.ActionType;
+import com.kadioglumf.socket.model.enums.WsFailureType;
+import com.kadioglumf.socket.model.enums.WsSendMessageRequest;
 import com.kadioglumf.socket.*;
 import com.kadioglumf.socket.annotations.Action;
+import com.kadioglumf.socket.utils.SubscriptionHubUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,13 +16,13 @@ public abstract class BaseChannelHandler {
     @Action(ActionType.SUBSCRIBE)
     public void subscribe(RealTimeSession session, WsSendMessageRequest request) {
         log.debug("RealTimeSession[{}] Subscribe to channel `{}`", session.id(), request.getChannel());
-        SubscriptionHub.subscribe(session, request.getChannel());
+        SubscriptionHubUtils.subscribe(session, request.getChannel());
     }
 
     @Action(ActionType.UNSUBSCRIBE)
     public void unsubscribe(RealTimeSession session, WsSendMessageRequest request) {
         log.debug("RealTimeSession[{}] Unsubscribe from channel `{}`", session.id(), request.getChannel());
-        SubscriptionHub.unsubscribe(session, request.getChannel());
+        SubscriptionHubUtils.unsubscribe(session, request.getChannel());
     }
 
     @Action(ActionType.SEND_MESSAGE)
@@ -28,6 +32,6 @@ public abstract class BaseChannelHandler {
             session.fail(WsFailureType.MISSING_FIELD_FAILURE.getValue());
             return;
         }
-        SubscriptionHub.send(session, request);
+        SubscriptionHubUtils.send(session, request);
     }
 }

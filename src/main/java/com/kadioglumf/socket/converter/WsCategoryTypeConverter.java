@@ -1,4 +1,6 @@
-package com.kadioglumf.socket;
+package com.kadioglumf.socket.converter;
+
+import com.kadioglumf.socket.model.enums.WsCategoryType;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;

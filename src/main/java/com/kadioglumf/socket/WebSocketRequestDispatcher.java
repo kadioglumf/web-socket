@@ -3,9 +3,14 @@ package com.kadioglumf.socket;
 import com.kadioglumf.exception.ErrorType;
 import com.kadioglumf.exception.WebSocketException;
 import com.kadioglumf.model.UserDetailsImpl;
+import com.kadioglumf.socket.model.enums.ActionType;
+import com.kadioglumf.socket.model.enums.WsFailureType;
+import com.kadioglumf.socket.model.enums.WsReplyType;
 import com.kadioglumf.security.TokenManager;
 import com.kadioglumf.socket.handler.ChannelHandlerInvoker;
 import com.kadioglumf.socket.handler.ChannelHandlerResolver;
+import com.kadioglumf.socket.model.IncomingMessage;
+import com.kadioglumf.socket.utils.SubscriptionHubUtils;
 import com.kadioglumf.utils.ConvertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +115,7 @@ public class WebSocketRequestDispatcher extends TextWebSocketHandler {
   public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus status) throws IOException {
     RealTimeSession session = allSessions.get(webSocketSession.getId());
     if (session != null) {
-      SubscriptionHub.unsubscribeAll(session);
+      SubscriptionHubUtils.unsubscribeAll(session);
       allSessions.remove(session.id());
       session.wrapped().close(status);
       log.debug("RealTimeSession[{}] Unsubscribed all channels after disconnecting", session.id());

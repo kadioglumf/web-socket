@@ -1,4 +1,4 @@
-package com.kadioglumf.socket;
+package com.kadioglumf.socket.model.enums;
 
 public enum WsFailureType {
     SEND_FAILURE("send_failure", "You are not subscribed this channel!"),

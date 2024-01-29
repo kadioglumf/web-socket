@@ -3,7 +3,9 @@ package com.kadioglumf.socket;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.kadioglumf.model.UserDetailsImpl;
+import com.kadioglumf.socket.model.enums.WsSendMessageRequest;
 import com.kadioglumf.security.TokenManager;
+import com.kadioglumf.socket.utils.WebSocketMessagesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
@@ -89,15 +91,15 @@ public class RealTimeSession {
   }
 
   public void info(WsSendMessageRequest request) {
-    sendMessage(WebSocketMessages.info(request));
+    sendMessage(WebSocketMessagesUtils.info(request));
   }
 
   public void fail(String failure) {
-    sendMessage(WebSocketMessages.failure(failure));
+    sendMessage(WebSocketMessagesUtils.failure(failure));
   }
 
   public void reply(String reply, @Nullable Set<String> subscribedChannels) {
-    sendMessage(WebSocketMessages.reply(reply, subscribedChannels));
+    sendMessage(WebSocketMessagesUtils.reply(reply, subscribedChannels));
   }
 
   private void sendMessage(TextMessage message) {

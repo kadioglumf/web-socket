@@ -1,6 +1,6 @@
 package com.kadioglumf.socket.handler;
 
-import com.kadioglumf.socket.IncomingMessage;
+import com.kadioglumf.socket.model.IncomingMessage;
 import com.kadioglumf.socket.annotations.ChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
