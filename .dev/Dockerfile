@@ -3,7 +3,7 @@ WORKDIR /opt/app
 COPY pom.xml .
 RUN mvn clean compile package -T 1C --batch-mode -Dmaven.test.skip=true -U -fn -Daether.connector.https.securityMode=insecure
 
-COPY lombok.config .
+#COPY lombok.config .
 COPY src src
 
 RUN mvn clean compile package -T 1C --batch-mode -Dmaven.test.skip=true -U -Daether.connector.https.securityMode=insecure
