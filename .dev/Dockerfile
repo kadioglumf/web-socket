@@ -1,10 +1,10 @@
 FROM maven:3.9.6-eclipse-temurin-11 as build
 WORKDIR /opt/app
-COPY pom.xml .
+COPY ./pom.xml .
 RUN mvn clean compile package -T 1C --batch-mode -Dmaven.test.skip=true -U -fn -Daether.connector.https.securityMode=insecure
 
 #COPY lombok.config .
-COPY src src
+COPY ./src src
 
 RUN mvn clean compile package -T 1C --batch-mode -Dmaven.test.skip=true -U -Daether.connector.https.securityMode=insecure
 RUN mv target/$(mvn -Daether.connector.https.securityMode=insecure -q -Dexec.executable=echo -Dexec.args='${project.artifactId}-${project.version}.jar' --non-recursive exec:exec 2>/dev/null) app.jar
