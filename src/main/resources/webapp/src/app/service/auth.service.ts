@@ -29,6 +29,7 @@ export class AuthenticationService {
           this.userRole = response.roles;
           this.setCurrentUser(response.refreshToken, response.token, response.email, response.id);
           this.isUserLoggedIn = this.getCurrentUser();
+          this.liveNotification.startLiveNotification();
         }
       }
     );

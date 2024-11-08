@@ -15,7 +15,7 @@ export class LayoutComponent implements OnInit, AfterViewInit {
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
     public liveNotification: LiveNotificationService,
-    public authService: AuthenticationService,
+    public authenticationService: AuthenticationService,
   ) {
     this.liveNotification.startLiveNotification();
   }

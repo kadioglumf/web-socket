@@ -12,7 +12,7 @@
 
 
 
-<mat-card class="max-w-[768px]">
+<mat-card class="max-w-[768px]" *ngIf="authenticationService.isUserLoggedIn">
   <h1 matCardTitle>{{'Channels'}}</h1>
   <div class="flex flex-col gap-4">
     <mat-slide-toggle [checked]="checkChannel(channel.TEST_ADMIN_CHANNEL)"

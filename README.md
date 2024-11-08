@@ -1,4 +1,10 @@
-## You can use Run Configurations in Intellij IDEA 
+## Running On Intellij IDEA
+- You can use Run Configurations in Intellij IDEA
+
+## Running On Docker
+- ``docker compose build``
+- ``docker compose up -d``
+
 
 ## Login and get user token
 
@@ -45,12 +51,12 @@
 
 - open the new Websocket tab on postman
 
-- connect to 
-    +  `localhost:8081/websocket/connect?Authorization={YOUR_JWT_TOKEN}`
+- connect to
+  +  `localhost:8081/websocket/connect?Authorization={YOUR_JWT_TOKEN}`
 
 
 - send request to subscribe a admin channel
-    + ```json 
+  + ```json 
       {
         "channel":"test-admin-channel",
         "action":"subscribe"
