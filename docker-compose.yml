@@ -1,0 +1,27 @@
+services:
+  websocket-service-svc:
+    restart: unless-stopped
+    healthcheck:
+      test: "curl --fail --silent localhost:8081/websocket/actuator/health | grep UP || exit 1"
+      interval: 20s
+      timeout: 5s
+      retries: 20
+      start_period: 40s
+    ports:
+      - "8081:8080"
+      - "5081:5005"
+    environment:
+      - JDK_JAVA_OPTIONS=-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    build:
+      context: .
+      dockerfile: .dev/Dockerfile
+
+  angular-app:
+    build:
+      context: ./src/main/resources/webapp
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./src/main/resources/webapp:/app
+      - /app/node_modules

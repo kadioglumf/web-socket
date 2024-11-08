@@ -2,20 +2,20 @@
 
 ## Login and get user token
 
-- `curl --location 'localhost:8080/api/auth/login' \
+- `curl --location --request POST 'localhost:8081/websocket/auth/login' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "email":"asd@mail.com",
-  "password": "password"
+  "password": "user"
   }'`
 
 ## Login and get admin token
 
-- `curl --location 'localhost:8080/api/auth/login' \
+- `curl --location --request POST 'localhost:8081/websocket/auth/login' \
   --header 'Content-Type: application/json' \
   --data-raw '{
   "email":"admin@mail.com",
-  "password": "password"
+  "password": "admin"
   }'`
 
 
@@ -46,7 +46,7 @@
 - open the new Websocket tab on postman
 
 - connect to 
-    +  `localhost:8080/api/web-socket?Authorization=(YOUR_TOKEN)`
+    +  `localhost:8081/websocket/connect?Authorization={YOUR_JWT_TOKEN}`
 
 
 - send request to subscribe a admin channel

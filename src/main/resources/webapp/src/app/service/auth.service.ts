@@ -5,7 +5,7 @@ import { Observable} from 'rxjs';
 import {ILoginRequest, ILoginResponse} from '../modal/login';
 import {LiveNotificationService} from './live-notification.service';
 
-const API_URL = 'http://localhost:8080/api';
+const API_URL = 'http://localhost:8081/websocket';
 
 @Injectable({providedIn: 'root'})
 export class AuthenticationService {

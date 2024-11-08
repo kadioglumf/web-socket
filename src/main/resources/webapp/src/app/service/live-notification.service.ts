@@ -46,7 +46,7 @@ export class LiveNotificationService {
 
   private createWebSocketConnection(token: string) {
     return webSocket({
-      url: `ws://localhost:8080/api/web-socket?Authorization=${token}`,
+      url: `ws://localhost:8081/websocket/connect?Authorization=${token}`,
       openObserver: {next: (evn: Event) => this.onConnectionOpen(evn)},
       closeObserver: {next: (closeE: CloseEvent) => this.onConnectionClose(closeE)},
       closingObserver: {next: () => this.onConnectionClosing()}

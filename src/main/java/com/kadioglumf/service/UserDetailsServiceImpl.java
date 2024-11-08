@@ -31,7 +31,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             return new UserDetailsImpl(
                     1L,
                     email,
-                    new BCryptPasswordEncoder().encode("password"),
+                    new BCryptPasswordEncoder().encode("admin"),
                     authorities,
                     roles,
                    true);
@@ -44,7 +44,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new UserDetailsImpl(
                 2L,
                 email,
-                new BCryptPasswordEncoder().encode("password"),
+                new BCryptPasswordEncoder().encode("user"),
                 authorities,
                 roles,
                 true);

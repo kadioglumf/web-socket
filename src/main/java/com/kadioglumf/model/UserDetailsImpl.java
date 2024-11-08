@@ -37,14 +37,6 @@ public class UserDetailsImpl implements UserDetails {
         return authorities;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
     @Override
     public String getUsername() {
         return this.getEmail();
@@ -83,13 +75,5 @@ public class UserDetailsImpl implements UserDetails {
             return false;
         UserDetailsImpl user = (UserDetailsImpl) o;
         return Objects.equals(id, user.id);
-    }
-
-    public List<String> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
     }
 }
