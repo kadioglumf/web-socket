@@ -11,8 +11,6 @@ import com.kadioglumf.socket.model.enums.WsSendMessageRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.WebSocketSession;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -45,7 +43,7 @@ public class ActionInvoker {
         }
     }
 
-    public void invokeAction(IncomingMessage incomingMessage, RealTimeSession session, TokenManager tokenManager, BiConsumer<WebSocketSession, CloseStatus> func) {
+    public void invokeAction(IncomingMessage incomingMessage, RealTimeSession session, BiConsumer<RealTimeSession, String> func) {
         try {
             if (!supports(incomingMessage.getAction())) {
                 String errorMessage = "Action not found `" + incomingMessage.getAction() +
@@ -69,8 +67,7 @@ public class ActionInvoker {
 
                 if (parameterType.isInstance(session)) {
                     args[i] = session;
-                }
-                else if (parameterType.isAssignableFrom(WsSendMessageRequest.class)) {
+                } else if (parameterType.isAssignableFrom(WsSendMessageRequest.class)) {
                     var sendMessageRequest = WsSendMessageRequest.builder()
                             .infoType(incomingMessage.getInfoType())
                             .category(incomingMessage.getCategory())
@@ -86,13 +83,10 @@ public class ActionInvoker {
                 else if (parameterType.isAssignableFrom(BiConsumer.class)) {
                     args[i] = func;
                 }
-                else if (parameterType.isAssignableFrom(TokenManager.class)) {
-                    args[i] = tokenManager;
-                }
             }
 
             actionMethod.invoke(actionHandler, args);
-        }  catch (Exception e) {
+        } catch (Exception e) {
             if (e instanceof InvocationTargetException && ((InvocationTargetException) e).getTargetException() instanceof WebSocketException) {
                 WebSocketException exception = (WebSocketException) ((InvocationTargetException) e).getTargetException();
                 String error = exception.getErrorResponse().getErrorMessage();

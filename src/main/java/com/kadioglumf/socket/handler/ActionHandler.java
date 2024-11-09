@@ -53,22 +53,9 @@ public class ActionHandler {
     }
 
     @Action(ActionType.REFRESH_CONNECTION)
-    public void refreshConnection(RealTimeSession session, WsSendMessageRequest request, TokenManager tokenManager, BiConsumer<WebSocketSession, CloseStatus> func) {
-        try {
-            UserDetailsImpl userDetails = tokenManager.getUserDetailsByJwt(request.getPayload().toString());
-            if (userDetails == null) {
-                throw new WebSocketException(ErrorType.WEB_SOCKET_ERROR, "Authentication failed!");
-            }
-            session.setLastValidToken(request.getPayload().toString());
-            session.reply(WsReplyType.AUTHENTICATION_REFRESH_SUCCESS.getValue(), null);
-        } catch (WebSocketException exception) {
-            session.fail(WsFailureType.AUTHENTICATION_FAILURE.getValue());
-            func.accept(session.wrapped(), CloseStatus.SERVER_ERROR);
-        } catch (Exception exception) {
-            log.debug("Error handleTextMessage method: {}", exception.getMessage());
-            session.fail(WsFailureType.UNKNOWN_FAILURE.getValue());
-            func.accept(session.wrapped(), CloseStatus.SERVER_ERROR);
-        }
+    public void refreshConnection(RealTimeSession session, WsSendMessageRequest request, BiConsumer<RealTimeSession, String> refreshTokenMethod) {
+        log.debug("RealTimeSession[{}] refresh token", session.id());
+        refreshTokenMethod.accept(session, request.getPayload().toString());
     }
 
 }

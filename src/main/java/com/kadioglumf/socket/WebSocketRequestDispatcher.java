@@ -25,78 +25,96 @@ import java.util.*;
 @Log4j2
 public class WebSocketRequestDispatcher extends TextWebSocketHandler {
 
-  private final ActionInvoker actionInvoker;
-  private final TokenManager tokenManager;
+    private final ActionInvoker actionInvoker;
+    private final TokenManager tokenManager;
 
-  private final Map<String, RealTimeSession> allSessions = new HashMap<>();
+    private final Map<String, RealTimeSession> allSessions = new HashMap<>();
 
-  public WebSocketRequestDispatcher(ActionInvoker actionInvoker, TokenManager tokenManager) {
-    this.actionInvoker = actionInvoker;
-    this.tokenManager = tokenManager;
-  }
-
-  @Override
-  public void afterConnectionEstablished(WebSocketSession webSocketSession) throws IOException {
-    log.debug("WebSocket connection established");
-    RealTimeSession session = new RealTimeSession(webSocketSession);
-
-    try {
-      UserDetailsImpl userDetails = tokenManager.getUserDetailsByJwt(session.getTokenFromUrl());
-      if (userDetails == null) {
-        throw new WebSocketException(ErrorType.WEB_SOCKET_ERROR, "Authentication failed!");
-      }
-
-      session.setUserDetails(userDetails);
-      session.setLastValidToken(session.getTokenFromUrl());
-      session.reply(WsReplyType.AUTHENTICATION_SUCCESS.getValue(), null);
-      allSessions.put(session.id(), session);
-    } catch (WebSocketException exception) {
-      log.debug("Authentication failed");
-      session.fail(WsFailureType.AUTHENTICATION_FAILURE.getValue());
-      webSocketSession.close(CloseStatus.SERVER_ERROR);
-    } catch (Exception exception) {
-      log.debug("Error afterConnectionEstablished method: {}", exception.getMessage());
-      session.fail(WsFailureType.AUTHENTICATION_FAILURE.getValue());
-      webSocketSession.close(CloseStatus.SERVER_ERROR);
-    }
-  }
-
-  @Override
-  protected void handleTextMessage(WebSocketSession webSocketSession, TextMessage message) throws IOException {
-    RealTimeSession session = allSessions.get(webSocketSession.getId());
-    log.debug("RealTimeSession[{}] Received message `{}`", session.id(), message.getPayload());
-
-    IncomingMessage incomingMessage = ConvertUtils.toObject(message.getPayload(), IncomingMessage.class);
-    if (incomingMessage == null) {
-      session.fail(WsFailureType.ILLEGAL_MESSAGE_FORMAT_FAILURE.getValue());
-      return;
+    public WebSocketRequestDispatcher(ActionInvoker actionInvoker, TokenManager tokenManager) {
+        this.actionInvoker = actionInvoker;
+        this.tokenManager = tokenManager;
     }
 
-    actionInvoker.invokeAction(incomingMessage, session, tokenManager, this::afterConnectionClosed);
-  }
+    @Override
+    public void afterConnectionEstablished(WebSocketSession webSocketSession) throws IOException {
+        log.debug("WebSocket connection established");
+        RealTimeSession session = new RealTimeSession(webSocketSession);
 
-  @Override
-  public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus status) {
-    try {
-      RealTimeSession session = allSessions.get(webSocketSession.getId());
-      if (session != null) {
-        SubscriptionHubUtils.unsubscribeAll(session);
-        allSessions.remove(session.id());
-        session.wrapped().close(status);
-        log.debug("RealTimeSession[{}] Unsubscribed all channels after disconnecting", session.id());
-      }
-    } catch (IOException e) {
-      log.error("Error afterConnectionClosed method: {}", e.getMessage());
-  }
-    }
+        try {
+            UserDetailsImpl userDetails = tokenManager.getUserDetailsByJwt(session.getTokenFromUrl());
+            if (userDetails == null) {
+                throw new WebSocketException(ErrorType.WEB_SOCKET_ERROR, "Authentication failed!");
+            }
 
-  @Scheduled(fixedRateString = "60000")
-  public void checkTokenOfAllSessions() {
-    for (var session : allSessions.entrySet()) {
-        if (session.getValue().isSubscriberTokenExpired()) {
-          session.getValue().fail(WsFailureType.AUTH_TOKEN_EXPIRED_FAILURE.getValue());
-          afterConnectionClosed(session.getValue().wrapped(), CloseStatus.SERVER_ERROR);
+            session.setUserDetails(userDetails);
+            session.setLastValidToken(session.getTokenFromUrl());
+            session.reply(WsReplyType.AUTHENTICATION_SUCCESS.getValue(), null);
+            allSessions.put(session.id(), session);
+        } catch (WebSocketException exception) {
+            log.debug("Authentication failed");
+            session.fail(WsFailureType.AUTHENTICATION_FAILURE.getValue());
+            webSocketSession.close(CloseStatus.SERVER_ERROR);
+        } catch (Exception exception) {
+            log.debug("Error afterConnectionEstablished method: {}", exception.getMessage());
+            session.fail(WsFailureType.AUTHENTICATION_FAILURE.getValue());
+            webSocketSession.close(CloseStatus.SERVER_ERROR);
         }
     }
-  }
+
+    @Override
+    protected void handleTextMessage(WebSocketSession webSocketSession, TextMessage message) throws IOException {
+        RealTimeSession session = allSessions.get(webSocketSession.getId());
+        log.debug("RealTimeSession[{}] Received message `{}`", session.id(), message.getPayload());
+
+        IncomingMessage incomingMessage = ConvertUtils.toObject(message.getPayload(), IncomingMessage.class);
+        if (incomingMessage == null) {
+            session.fail(WsFailureType.ILLEGAL_MESSAGE_FORMAT_FAILURE.getValue());
+            return;
+        }
+
+        actionInvoker.invokeAction(incomingMessage, session, this::refreshConnection);
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus status) {
+        try {
+            RealTimeSession session = allSessions.get(webSocketSession.getId());
+            if (session != null) {
+                SubscriptionHubUtils.unsubscribeAll(session);
+                allSessions.remove(session.id());
+                session.wrapped().close(status);
+                log.debug("RealTimeSession[{}] Unsubscribed all channels after disconnecting", session.id());
+            }
+        } catch (IOException e) {
+            log.error("Error afterConnectionClosed method: {}", e.getMessage());
+        }
+    }
+
+    private void refreshConnection(RealTimeSession session, String token) {
+      try {
+        UserDetailsImpl userDetails = tokenManager.getUserDetailsByJwt(token);
+        if (userDetails == null) {
+          throw new WebSocketException(ErrorType.WEB_SOCKET_ERROR, "Authentication failed!");
+        }
+        session.setLastValidToken(token);
+        session.reply(WsReplyType.AUTHENTICATION_REFRESH_SUCCESS.getValue(), null);
+      } catch (WebSocketException exception) {
+        session.fail(WsFailureType.AUTHENTICATION_FAILURE.getValue());
+        afterConnectionClosed(session.wrapped(), CloseStatus.SERVER_ERROR);
+      } catch (Exception exception) {
+        log.debug("Error handleTextMessage method: {}", exception.getMessage());
+        session.fail(WsFailureType.UNKNOWN_FAILURE.getValue());
+        afterConnectionClosed(session.wrapped(), CloseStatus.SERVER_ERROR);
+      }
+    }
+
+    @Scheduled(fixedRateString = "60000")
+    public void checkTokenOfAllSessions() {
+        for (var session : allSessions.entrySet()) {
+            if (session.getValue().isSubscriberTokenExpired()) {
+                session.getValue().fail(WsFailureType.AUTH_TOKEN_EXPIRED_FAILURE.getValue());
+                afterConnectionClosed(session.getValue().wrapped(), CloseStatus.SERVER_ERROR);
+            }
+        }
+    }
 }
