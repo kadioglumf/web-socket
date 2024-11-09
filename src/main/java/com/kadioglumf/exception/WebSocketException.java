@@ -1,5 +1,8 @@
 package com.kadioglumf.exception;
 
+import lombok.Getter;
+
+@Getter
 public class WebSocketException extends RuntimeException {
 
     private final BaseErrorResponse errorResponse;
@@ -27,9 +30,5 @@ public class WebSocketException extends RuntimeException {
     public WebSocketException(ErrorType errorType, String errorMessage) {
         super(errorMessage);
         this.errorResponse = new BaseErrorResponse(errorType, errorMessage);
-    }
-
-    public BaseErrorResponse getErrorResponse() {
-        return errorResponse;
     }
 }

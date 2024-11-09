@@ -1,17 +1,17 @@
 package com.kadioglumf.socket.model.enums;
 
 import com.kadioglumf.socket.converter.WsInfoTypeConverter;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.Convert;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class WsSendMessageRequest {
     @NotNull
     private Object payload;

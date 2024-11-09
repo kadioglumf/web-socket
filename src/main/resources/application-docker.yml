@@ -12,6 +12,15 @@ app:
     accessTokenSecret: BvPHGM8C0ia4uOtrxqPD5DTbWC9F9TWvPStp3pb7ARo0oK2mJ3pd3KL4lxA9i8bj6OTbadwezxgeEByY
     accessTokenExpirationMs: 3600000
 
+  channels:
+    - name: "test-admin-channel"
+      allowedRoles:
+        - "ROLE_ADMIN"
+        - "ROLE_MODERATOR"
+    - name: "test-user-channel"
+      allowedRoles:
+        - "ROLE_USER"
+
 management:
   endpoints:
     web:

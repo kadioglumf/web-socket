@@ -116,22 +116,11 @@ public final class SubscriptionHubUtils {
    *
    */
   public static void send(RealTimeSession session, WsSendMessageRequest request) {
-    Assert.hasText(request.getChannel(), "Parameter `channel` must not be empty");
-    Assert.notNull(request.getPayload(), "Parameter `update` must not be null");
-
     if (!isSessionSubscribed(session, request.getChannel())) {
       session.fail(WsFailureType.SEND_FAILURE.getValue());
     }
     else {
-      Set<RealTimeSession> subscribers = subscriptions.get(request.getChannel());
-      if (subscribers == null || subscriptions.isEmpty()) {
-        log.debug("No subscribers of channel `{}` found", request.getChannel());
-        return;
-      }
-
-      for (RealTimeSession subscriber: subscribers) {
-        sendTo(subscriber, request);
-      }
+      send(request);
     }
   }
 
