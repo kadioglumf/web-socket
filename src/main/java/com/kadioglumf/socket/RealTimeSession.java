@@ -110,6 +110,9 @@ public class RealTimeSession {
     }
   }
 
+  public boolean isAdmin() {
+    return getUserDetails().getRoles().contains("ROLE_ADMIN");
+  }
 /*  public String getTokenFromHeader() {
     List<String> headerAuths = session.getHandshakeHeaders().get(TokenManager.AUTHORIZATION_HEADER);
     if (CollectionUtils.isEmpty(headerAuths)) {

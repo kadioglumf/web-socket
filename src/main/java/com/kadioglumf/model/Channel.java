@@ -1,7 +1,6 @@
 package com.kadioglumf.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -10,12 +9,16 @@ import java.util.Set;
 @Table(name = "channel")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Channel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String name;
 
     @ElementCollection(fetch = FetchType.EAGER)

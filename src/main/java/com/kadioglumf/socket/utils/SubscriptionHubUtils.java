@@ -116,7 +116,7 @@ public final class SubscriptionHubUtils {
    *
    */
   public static void send(RealTimeSession session, WsSendMessageRequest request) {
-    if (!isSessionSubscribed(session, request.getChannel())) {
+    if (!session.isAdmin() && !isSessionSubscribed(session, request.getChannel())) {
       session.fail(WsFailureType.SEND_FAILURE.getValue());
     }
     else {

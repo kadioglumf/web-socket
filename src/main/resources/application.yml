@@ -2,6 +2,8 @@ server:
   servlet:
     context-path: /websocket
 spring:
+  cache:
+    type: simple
   datasource:
     username: postgres
     password: 12345678
