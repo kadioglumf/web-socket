@@ -1,12 +1,7 @@
 package com.kadioglumf.socket.handler;
 
-import com.kadioglumf.exception.ErrorType;
-import com.kadioglumf.exception.WebSocketException;
-import com.kadioglumf.model.UserDetailsImpl;
-import com.kadioglumf.security.TokenManager;
 import com.kadioglumf.socket.model.enums.ActionType;
 import com.kadioglumf.socket.model.enums.WsFailureType;
-import com.kadioglumf.socket.model.enums.WsReplyType;
 import com.kadioglumf.socket.model.enums.WsSendMessageRequest;
 import com.kadioglumf.socket.*;
 import com.kadioglumf.socket.annotations.Action;
@@ -16,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.WebSocketSession;
 
 import java.util.function.BiConsumer;
 

@@ -1,6 +1,6 @@
 package com.kadioglumf.socket.validator;
 
-import com.kadioglumf.config.ChannelConfig;
+import com.kadioglumf.config.ChannelConfigData;
 import com.kadioglumf.exception.ErrorType;
 import com.kadioglumf.exception.WebSocketException;
 import com.kadioglumf.socket.model.ChannelRuleData;
@@ -15,10 +15,10 @@ import java.util.Set;
 @Component
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ChannelValidator {
-    private final ChannelConfig channelConfig;
+    private final ChannelConfigData channelConfigData;
 
     public void valid(String channel, List<String> userRoles) {
-        ChannelRuleData channelInfo = channelConfig.getChannels().stream().filter(info -> info.getName().equals(channel)).findFirst().orElseThrow(
+        ChannelRuleData channelInfo = channelConfigData.getChannels().stream().filter(info -> info.getName().equals(channel)).findFirst().orElseThrow(
                 () -> new WebSocketException(ErrorType.WEB_SOCKET_ERROR, "Channel `" + channel + "` not found!")
         );
 

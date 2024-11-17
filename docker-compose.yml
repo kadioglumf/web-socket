@@ -1,4 +1,25 @@
+volumes:
+  pg_data:
+
 services:
+  db:
+    image: postgres:alpine
+    restart: unless-stopped
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./.dev/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+    ports:
+      - "5445:5432"
+
   websocket-service-svc:
     restart: unless-stopped
     healthcheck:
@@ -11,6 +32,11 @@ services:
       - "8081:8080"
       - "5081:5005"
     environment:
+      - DB_NAME=websocket-db
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=12345678
       - JDK_JAVA_OPTIONS=-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     build:
       context: .
