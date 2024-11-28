@@ -1,13 +1,12 @@
 package com.kadioglumf.socket.model;
 
+import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.Set;
 
 @Data
 @Builder
 public class ChannelRuleData {
-    private String name;
-    private Set<String> allowedRoles;
+  private String name;
+  private Set<String> allowedRoles;
 }

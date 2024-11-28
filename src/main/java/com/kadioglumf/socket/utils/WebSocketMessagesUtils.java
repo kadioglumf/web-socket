@@ -2,14 +2,13 @@ package com.kadioglumf.socket.utils;
 
 import com.kadioglumf.socket.model.enums.WsSendMessageRequest;
 import com.kadioglumf.utils.ConvertUtils;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 import org.springframework.web.socket.TextMessage;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class WebSocketMessagesUtils {

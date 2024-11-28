@@ -1,5 +1,6 @@
 volumes:
   pg_data:
+  redis:
 
 services:
   db:
@@ -23,7 +24,7 @@ services:
   websocket-service-svc:
     restart: unless-stopped
     healthcheck:
-      test: "curl --fail --silent localhost:8081/websocket/actuator/health | grep UP || exit 1"
+      test: "curl --fail --silent localhost:8080/websocket/actuator/health | grep UP || exit 1"
       interval: 20s
       timeout: 5s
       retries: 20
@@ -38,10 +39,20 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=12345678
       - JDK_JAVA_OPTIONS=-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=a4rT44Rce32w87htRft56
+      - REDIS_DATABASE=0
     build:
       context: .
       dockerfile: .dev/Dockerfile
-
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    links:
+      - redis
   angular-app:
     build:
       context: ./src/main/resources/webapp
@@ -51,3 +62,29 @@ services:
     volumes:
       - ./src/main/resources/webapp:/app
       - /app/node_modules
+  seed:
+    image: barrypiccinni/psql-curl
+    restart: 'no'
+    volumes:
+      - ./.dev/seed.sql:/tmp/seed.sql
+      - ./.dev/seed.sh:/tmp/seed.sh
+    entrypoint: bash -c 'chmod +x /tmp/seed.sh && /tmp/seed.sh && psql -h db -U postgres -d websocket-db -f /tmp/seed.sql'
+    environment:
+      PGPASSWORD: 12345678
+    depends_on:
+      websocket-service-svc:
+        condition: service_healthy
+
+  redis:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "a4rT44Rce32w87htRft56", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command: redis-server --save 20 1 --loglevel warning --requirepass a4rT44Rce32w87htRft56
+    volumes:
+      - redis:/data

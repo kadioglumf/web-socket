@@ -10,14 +10,14 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @EnableWebSocket
 public class WebSocketConfiguration implements WebSocketConfigurer {
 
-    private WebSocketRequestDispatcher requestDispatcher;
+  private WebSocketRequestDispatcher requestDispatcher;
 
-    public WebSocketConfiguration(WebSocketRequestDispatcher requestDispatcher) {
-        this.requestDispatcher = requestDispatcher;
-    }
+  public WebSocketConfiguration(WebSocketRequestDispatcher requestDispatcher) {
+    this.requestDispatcher = requestDispatcher;
+  }
 
-    @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(requestDispatcher, "/connect").setAllowedOrigins("*");
-    }
+  @Override
+  public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+    registry.addHandler(requestDispatcher, "/connect").setAllowedOrigins("*");
+  }
 }
