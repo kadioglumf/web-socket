@@ -12,6 +12,6 @@ public interface ChannelRepository extends JpaRepository<Channel, Long> {
 
   Optional<Channel> findByName(String name);
 
-  @Query("SELECT c FROM Channel c JOIN c.roles r WHERE r IN :roles")
+  @Query("SELECT distinct c FROM Channel c JOIN c.roles r WHERE r IN :roles")
   List<Channel> findAllByRoles(@Param("roles") List<String> roles);
 }

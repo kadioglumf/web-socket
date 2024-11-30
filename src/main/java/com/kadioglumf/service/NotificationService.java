@@ -20,6 +20,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -80,14 +81,16 @@ public class NotificationService {
 
       var cache = cacheManager.getCache(CacheConstants.NOTIFICATION_CACHE_VALUE);
       if (cache != null) {
-        cache.evictIfPresent("userId_" + userId);
+        cache.evictIfPresent(CacheConstants.USER_ID_KEY + "_" + userId);
       }
     }
   }
 
   @Cacheable(
       value = CacheConstants.NOTIFICATION_CACHE_VALUE,
-      key = "'userId_' + T(com.kadioglumf.utils.UserThreadContext).getUserId()")
+      key =
+          "T(com.kadioglumf.constant.CacheConstants).CHANNEL_NAME_KEY + '_' "
+              + "+ T(com.kadioglumf.utils.UserThreadContext).getUserId()")
   public List<NotificationResponseDto> fetch() {
     var notifications = notificationRepository.findByUserId(UserThreadContext.getUserId());
     return notificationMapper.toNotificationResponseList(notifications);
@@ -95,7 +98,9 @@ public class NotificationService {
 
   @CacheEvict(
       value = CacheConstants.NOTIFICATION_CACHE_VALUE,
-      key = "'userId_' + T(com.kadioglumf.utils.UserThreadContext).getUserId()")
+      key =
+          "T(com.kadioglumf.constant.CacheConstants).CHANNEL_NAME_KEY + '_' "
+              + "+ T(com.kadioglumf.utils.UserThreadContext).getUserId()")
   @Transactional
   public void markAsRead(List<String> notificationId) {
     var notification = notificationRepository.findByNotificationIdIn(notificationId);
@@ -108,11 +113,17 @@ public class NotificationService {
 
   @CacheEvict(
       value = CacheConstants.NOTIFICATION_CACHE_VALUE,
-      key = "'userId_' + T(com.kadioglumf.utils.UserThreadContext).getUserId()")
+      key =
+          "T(com.kadioglumf.constant.CacheConstants).CHANNEL_NAME_KEY + '_' "
+              + "+ T(com.kadioglumf.utils.UserThreadContext).getUserId()")
   @Transactional
   public void deleteAll() {
     var notifications = notificationRepository.findByUserId(UserThreadContext.getUserId());
     notifications.forEach(notification -> notification.setDeleted(true));
     notificationRepository.saveAll(notifications);
   }
+
+  @Caching(
+      evict = {@CacheEvict(value = CacheConstants.NOTIFICATION_CACHE_VALUE, allEntries = true)})
+  public void refreshNotifications() {}
 }

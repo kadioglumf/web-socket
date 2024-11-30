@@ -1,5 +1,6 @@
 package com.kadioglumf.service;
 
+import com.kadioglumf.constant.CacheConstants;
 import com.kadioglumf.dto.response.UserPreferencesResponseDto;
 import com.kadioglumf.model.UserChannelPreferences;
 import com.kadioglumf.repository.ChannelRepository;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -20,6 +22,9 @@ public class UserChannelPreferencesService {
   private final UserRepository userRepository;
   private final ChannelRepository channelRepository;
 
+  @Cacheable(
+      value = CacheConstants.USER_CHANNEL_PREFERENCES_CACHE_VALUE,
+      key = "T(com.kadioglumf.constant.CacheConstants).USER_ID_KEY + '_' + #userId")
   @Transactional
   public List<UserPreferencesResponseDto> getUserChannels(Long userId) {
     var preferences = userChannelPreferencesRepository.findAllByUserId(userId);
@@ -61,6 +66,9 @@ public class UserChannelPreferencesService {
         .collect(Collectors.toList());
   }
 
+  @Cacheable(
+      value = CacheConstants.USER_CHANNEL_PREFERENCES_CACHE_VALUE,
+      key = "T(com.kadioglumf.constant.CacheConstants).CHANNEL_NAME_KEY + '_' + #channelName")
   public List<UserPreferencesResponseDto> getByChannelName(String channelName) {
     var preferences = userChannelPreferencesRepository.findAllByChannel_Name(channelName);
     return preferences.stream()

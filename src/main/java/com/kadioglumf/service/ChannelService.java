@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +46,9 @@ public class ChannelService {
         .collect(Collectors.toList());
   }
 
+  @Cacheable(
+      value = CacheConstants.CHANNEL_CACHE_VALUE,
+      key = "T(com.kadioglumf.constant.CacheConstants).CHANNEL_CACHE_KEY + '_' + #name")
   public ChannelResponseDto getByName(String name) {
     var channel = channelRepository.findByName(name);
     return channel
@@ -69,15 +73,32 @@ public class ChannelService {
 
   @Transactional
   public void addChannel(AddChannelRequestDto request) {
-    channelRepository.save(
-        Channel.builder().name(request.getName()).roles(request.getRoles()).build());
+    Channel channel = new Channel();
+    channel.setName(request.getName());
+    channel.setRoles(request.getRoles());
+    channelRepository.save(channel);
   }
 
+  @CacheEvict(
+      value = CacheConstants.CHANNEL_CACHE_VALUE,
+      key = "T(com.kadioglumf.constant.CacheConstants).CHANNEL_CACHE_KEY + '_' + #request.name")
   @Transactional
   public void deleteChannel(DeleteChannelRequestDto request) {
     channelRepository.deleteByName(request.getName());
   }
 
+  @Caching(
+      evict = {
+        @CacheEvict(
+            value = CacheConstants.CHANNEL_CACHE_VALUE,
+            key = "T(com.kadioglumf.constant.CacheConstants).CHANNEL_CACHE_KEY + '_' + #channel"),
+        @CacheEvict(
+            value = CacheConstants.USER_CHANNEL_PREFERENCES_CACHE_VALUE,
+            key = "T(com.kadioglumf.constant.CacheConstants).USER_ID_KEY + '_' + #userId"),
+        @CacheEvict(
+            value = CacheConstants.USER_CHANNEL_PREFERENCES_CACHE_VALUE,
+            key = "T(com.kadioglumf.constant.CacheConstants).CHANNEL_NAME_KEY + '_' + #channel")
+      })
   @Transactional
   public void subscribeChannel(String channel, Long userId) {
     channelRepository
@@ -110,6 +131,18 @@ public class ChannelService {
             });
   }
 
+  @Caching(
+      evict = {
+        @CacheEvict(
+            value = CacheConstants.CHANNEL_CACHE_VALUE,
+            key = "T(com.kadioglumf.constant.CacheConstants).CHANNEL_CACHE_KEY + '_' + #channel"),
+        @CacheEvict(
+            value = CacheConstants.USER_CHANNEL_PREFERENCES_CACHE_VALUE,
+            key = "T(com.kadioglumf.constant.CacheConstants).USER_ID_KEY + '_' + #userId"),
+        @CacheEvict(
+            value = CacheConstants.USER_CHANNEL_PREFERENCES_CACHE_VALUE,
+            key = "T(com.kadioglumf.constant.CacheConstants).CHANNEL_NAME_KEY + '_' + #channel")
+      })
   @Transactional
   public void unsubscribeChannel(String channel, Long userId) {
     channelRepository
@@ -130,7 +163,7 @@ public class ChannelService {
   @Caching(
       evict = {
         @CacheEvict(value = CacheConstants.CHANNEL_CACHE_VALUE, allEntries = true),
-        @CacheEvict(value = CacheConstants.USER_CHANNEL_CACHE_VALUE, allEntries = true)
+        @CacheEvict(value = CacheConstants.USER_CHANNEL_PREFERENCES_CACHE_VALUE, allEntries = true)
       })
   public void refreshChannels() {}
 }
