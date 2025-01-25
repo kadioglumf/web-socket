@@ -3,14 +3,22 @@ server:
     context-path: /websocket
 spring:
   datasource:
-    url: jdbc:h2:mem:mydb
-    username: sa
-    password: password
-    driverClassName: org.h2.Driver
+    username: postgres
+    password: 12345678
+    url: jdbc:postgresql://localhost:5434/websocket-db
+    driver-class-name: org.postgresql.Driver
   jpa:
-    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
 
 app:
   jwt:
     accessTokenSecret: BvPHGM8C0ia4uOtrxqPD5DTbWC9F9TWvPStp3pb7ARo0oK2mJ3pd3KL4lxA9i8bj6OTbadwezxgeEByY
     accessTokenExpirationMs: 3600000
+
+redis:
+  host: localhost
+  port: 6379
+  password: a4rT44Rce32w87htRft56
+  database: 0

@@ -1,30 +1,30 @@
 package com.kadioglumf.socket.model.enums;
 
 import com.kadioglumf.socket.converter.WsInfoTypeConverter;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import javax.persistence.Convert;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class WsSendMessageRequest {
-    @NotNull
-    private Object payload;
-    @NotNull
-    @Convert(converter = WsInfoTypeConverter.class)
-    private WsInfoType infoType;
-    @NotNull
-    @Convert(converter = WsCategoryType.class)
-    private WsCategoryType category;
-    @NotBlank
-    private String channel;
+  @NotNull private Object payload;
 
-    private WsSendingType sendingType;
-    private RoleType role;
-    private Long userId;
+  @NotNull
+  @Convert(converter = WsInfoTypeConverter.class)
+  private WsInfoType infoType;
+
+  @NotNull
+  @Convert(converter = WsCategoryType.class)
+  private WsCategoryType category;
+
+  @NotBlank private String channel;
+
+  private WsSendingType sendingType;
+  private RoleType role;
+  private Long userId;
 }

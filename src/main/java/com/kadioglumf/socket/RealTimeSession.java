@@ -3,9 +3,13 @@ package com.kadioglumf.socket;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.kadioglumf.model.UserDetailsImpl;
-import com.kadioglumf.socket.model.enums.WsSendMessageRequest;
 import com.kadioglumf.security.TokenManager;
+import com.kadioglumf.socket.model.enums.WsSendMessageRequest;
 import com.kadioglumf.socket.utils.WebSocketMessagesUtils;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Date;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
@@ -14,14 +18,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Date;
-import java.util.Set;
-
-/**
- * A wrapper over {@link WebSocketSession} to add convenient methods
- */
+/** A wrapper over {@link WebSocketSession} to add convenient methods */
 public class RealTimeSession {
 
   private static final Logger log = LoggerFactory.getLogger(RealTimeSession.class);
@@ -80,11 +77,10 @@ public class RealTimeSession {
   public boolean isSubscriberTokenExpired() {
     try {
       DecodedJWT jwt = JWT.decode(getLastValidToken());
-      if(jwt.getExpiresAt().before(new Date())) {
+      if (jwt.getExpiresAt().before(new Date())) {
         return true;
       }
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       return true;
     }
     return false;
@@ -110,7 +106,10 @@ public class RealTimeSession {
     }
   }
 
-/*  public String getTokenFromHeader() {
+  public boolean isAdmin() {
+    return getUserDetails().getRoles().contains("ROLE_ADMIN");
+  }
+  /*  public String getTokenFromHeader() {
     List<String> headerAuths = session.getHandshakeHeaders().get(TokenManager.AUTHORIZATION_HEADER);
     if (CollectionUtils.isEmpty(headerAuths)) {
       throw new WebSocketException(ErrorType.WEB_SOCKET_ERROR); //TODO
